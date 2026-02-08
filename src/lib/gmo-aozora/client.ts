@@ -87,15 +87,29 @@ export interface TransactionsResponse {
  * Fetch transactions with automatic pagination.
  * GMO API returns max 500 per request.
  */
+/**
+ * Fetch transactions with automatic pagination.
+ * If accountId is omitted, fetches it from the balance API automatically.
+ */
 export async function fetchTransactions(
   dateFrom: string,
   dateTo: string,
+  accountId?: string,
 ): Promise<GmoTransaction[]> {
+  // Auto-resolve accountId from balance API if not provided
+  if (!accountId) {
+    const balanceData = await fetchBalance();
+    if (!balanceData.balances || balanceData.balances.length === 0) {
+      throw new GmoApiError(404, "NO_ACCOUNT", "口座が見つかりません");
+    }
+    accountId = balanceData.balances[0].accountId;
+  }
+
   const all: GmoTransaction[] = [];
   let nextItemKey: string | undefined;
 
   do {
-    const params: Record<string, string> = { dateFrom, dateTo };
+    const params: Record<string, string> = { accountId, dateFrom, dateTo };
     if (nextItemKey) params.nextItemKey = nextItemKey;
 
     const data: TransactionsResponse = await gmoFetch(
