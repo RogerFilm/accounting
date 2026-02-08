@@ -19,11 +19,11 @@ export async function GET(request: Request) {
     .where(eq(companies.id, user.companyId))
     .limit(1);
 
-  const fyStartMonth = company?.fiscalYearStartMonth || 4;
+  const fyEndMonth = company?.fiscalYearEndMonth || 3;
+  const fyStartMonth = (fyEndMonth % 12) + 1;
   const currentYear = new Date().getFullYear();
   const fyStartYear = new Date().getMonth() + 1 >= fyStartMonth ? currentYear : currentYear - 1;
   const fyEndYear = fyStartMonth === 1 ? fyStartYear : fyStartYear + 1;
-  const fyEndMonth = fyStartMonth === 1 ? 12 : fyStartMonth - 1;
 
   const dateFrom = url.searchParams.get("dateFrom")
     || `${fyStartYear}-${String(fyStartMonth).padStart(2, "0")}-01`;

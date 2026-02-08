@@ -36,8 +36,8 @@ export default async function SettingsPage() {
                 <dd>{company.invoiceRegistrationNumber || "未設定"}</dd>
               </div>
               <div>
-                <dt className="font-medium text-muted-foreground">事業年度開始月</dt>
-                <dd>{company.fiscalYearStartMonth}月</dd>
+                <dt className="font-medium text-muted-foreground">決算月</dt>
+                <dd>{company.fiscalYearEndMonth}月</dd>
               </div>
               <div>
                 <dt className="font-medium text-muted-foreground">課税方式</dt>
@@ -66,7 +66,13 @@ export default async function SettingsPage() {
             </div>
             <div>
               <dt className="font-medium text-muted-foreground">権限</dt>
-              <dd>{user.role === "owner" ? "管理者" : "税理士"}</dd>
+              <dd>
+                {user.role === "admin"
+                  ? "管理者"
+                  : user.role === "tax_accountant"
+                    ? "税理士"
+                    : "経理"}
+              </dd>
             </div>
           </dl>
         </CardContent>

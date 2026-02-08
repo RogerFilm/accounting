@@ -7,14 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-function KaikeiLogo({ className }: { className?: string }) {
+function AppLogo({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 28 28" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="28" height="28" rx="6" fill="#2864f0" />
-      <path
-        d="M7 8.5h3v11H7v-11zM11.5 14l4-5.5h3.5l-4.2 5.2 4.5 5.8h-3.6L11.5 14z"
-        fill="white"
-      />
+      <defs>
+        <linearGradient id="rf-grad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#0b3a42" />
+          <stop offset="40%" stopColor="#0f4a53" />
+          <stop offset="60%" stopColor="#1a6e7a" />
+          <stop offset="100%" stopColor="#4eddd0" />
+        </linearGradient>
+      </defs>
+      <rect width="28" height="28" rx="6" fill="url(#rf-grad)" />
+      <text x="14" y="19" textAnchor="middle" fill="#eaf8f6" fontSize="13" fontWeight="bold" fontFamily="Arial, Helvetica, sans-serif">RF</text>
     </svg>
   );
 }
@@ -54,8 +59,8 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm shadow-md">
         <CardHeader className="text-center pb-4">
           <div className="mx-auto mb-3 flex items-center gap-2">
-            <KaikeiLogo className="h-8 w-8" />
-            <span className="text-xl font-bold text-foreground">会計</span>
+            <AppLogo className="h-8 w-8" />
+            <span className="text-xl font-bold text-foreground">RogerFilm</span>
           </div>
           <p className="text-sm text-muted-foreground">アカウントにログイン</p>
         </CardHeader>

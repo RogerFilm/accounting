@@ -13,6 +13,7 @@ import {
   LogOut,
   Receipt,
   Users,
+  UserPlus,
   Upload,
   BarChart3,
   Calculator,
@@ -35,58 +36,71 @@ interface NavSection {
   items: NavItem[];
 }
 
-const navSections: NavSection[] = [
-  {
-    label: "会計",
-    items: [
-      { href: "/dashboard", label: "ホーム", icon: LayoutDashboard },
-      { href: "/journal/new", label: "取引入力", icon: PenLine },
-      { href: "/journal", label: "仕訳帳", icon: BookOpen },
-      { href: "/ledger", label: "会計帳簿", icon: BookMarked, chevron: true },
-    ],
-  },
-  {
-    label: "経理",
-    items: [
-      { href: "/invoices", label: "請求書", icon: Receipt },
-      { href: "/clients", label: "取引先", icon: Users },
-    ],
-  },
-  {
-    label: "レポート",
-    items: [
-      { href: "/reports", label: "分析・レポート", icon: BarChart3, chevron: true },
-      { href: "/accounts", label: "勘定科目", icon: List },
-    ],
-  },
-  {
-    label: "決算",
-    items: [
-      { href: "/tax", label: "決算・申告", icon: Calculator, chevron: true },
-      { href: "/import", label: "データ取込", icon: Upload },
-    ],
-  },
-  {
-    label: "設定",
-    items: [
-      { href: "/settings", label: "設定", icon: Settings },
-    ],
-  },
-];
+function getNavSections(role?: string): NavSection[] {
+  const settingsItems: NavItem[] = [
+    { href: "/settings", label: "設定", icon: Settings },
+  ];
+  if (role === "admin") {
+    settingsItems.push({ href: "/users", label: "ユーザー管理", icon: Users });
+  }
 
-function KaikeiLogo({ className }: { className?: string }) {
+  return [
+    {
+      label: "会計",
+      items: [
+        { href: "/dashboard", label: "ホーム", icon: LayoutDashboard },
+        { href: "/journal/new", label: "取引入力", icon: PenLine },
+        { href: "/journal", label: "仕訳帳", icon: BookOpen },
+        { href: "/ledger", label: "会計帳簿", icon: BookMarked, chevron: true },
+      ],
+    },
+    {
+      label: "経理",
+      items: [
+        { href: "/invoices", label: "請求書", icon: Receipt },
+        { href: "/clients", label: "取引先", icon: UserPlus },
+      ],
+    },
+    {
+      label: "レポート",
+      items: [
+        { href: "/reports", label: "分析・レポート", icon: BarChart3, chevron: true },
+        { href: "/accounts", label: "勘定科目", icon: List },
+      ],
+    },
+    {
+      label: "決算",
+      items: [
+        { href: "/tax", label: "決算・申告", icon: Calculator, chevron: true },
+        { href: "/import", label: "データ取込", icon: Upload },
+      ],
+    },
+    {
+      label: "設定",
+      items: settingsItems,
+    },
+  ];
+}
+
+function AppLogo({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 28 28" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="28" height="28" rx="6" fill="#2864f0" />
-      <path
-        d="M7 8.5h3v11H7v-11zM11.5 14l4-5.5h3.5l-4.2 5.2 4.5 5.8h-3.6L11.5 14z"
-        fill="white"
-      />
+      <defs>
+        <linearGradient id="rf-grad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#0b3a42" />
+          <stop offset="40%" stopColor="#0f4a53" />
+          <stop offset="60%" stopColor="#1a6e7a" />
+          <stop offset="100%" stopColor="#4eddd0" />
+        </linearGradient>
+      </defs>
+      <rect width="28" height="28" rx="6" fill="url(#rf-grad)" />
+      <text x="14" y="19" textAnchor="middle" fill="#eaf8f6" fontSize="13" fontWeight="bold" fontFamily="Arial, Helvetica, sans-serif">RF</text>
     </svg>
   );
 }
 
-function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+function NavContent({ pathname, onNavigate, role }: { pathname: string; onNavigate?: () => void; role?: string }) {
+  const navSections = getNavSections(role);
   return (
     <>
       {/* Logo */}
@@ -96,8 +110,8 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
           className="flex items-center gap-2"
           onClick={onNavigate}
         >
-          <KaikeiLogo className="h-6 w-6" />
-          <span className="text-base font-bold text-foreground tracking-tight">会計</span>
+          <AppLogo className="h-6 w-6" />
+          <span className="text-base font-bold text-foreground tracking-tight">RogerFilm</span>
         </Link>
       </div>
 
@@ -153,7 +167,11 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
   );
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  user?: { role: string };
+}
+
+export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -165,14 +183,14 @@ export function Sidebar() {
           <Menu className="h-5 w-5" />
         </button>
         <Link href="/dashboard" className="flex items-center gap-2">
-          <KaikeiLogo className="h-5 w-5" />
+          <AppLogo className="h-5 w-5" />
           <span className="text-sm font-bold text-foreground">会計</span>
         </Link>
       </div>
 
       {/* Desktop sidebar */}
       <aside className="hidden md:flex h-screen w-52 flex-col border-r border-border bg-[#eef3fb] shrink-0 shadow-[2px_0_8px_rgba(0,0,0,0.06)]">
-        <NavContent pathname={pathname} />
+        <NavContent pathname={pathname} role={user?.role} />
       </aside>
 
       {/* Mobile overlay */}
@@ -185,7 +203,7 @@ export function Sidebar() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <NavContent pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+            <NavContent pathname={pathname} onNavigate={() => setMobileOpen(false)} role={user?.role} />
           </aside>
         </div>
       )}

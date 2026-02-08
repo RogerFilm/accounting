@@ -24,7 +24,8 @@ export async function GET(request: Request) {
     .where(eq(companies.id, user.companyId))
     .limit(1);
 
-  const fyStartMonth = company?.fiscalYearStartMonth || 4;
+  const fyEndMonth = company?.fiscalYearEndMonth || 3;
+  const fyStartMonth = (fyEndMonth % 12) + 1;
 
   const assets = await db
     .select()
@@ -81,10 +82,10 @@ export async function POST(request: Request) {
     .where(eq(companies.id, user.companyId))
     .limit(1);
 
-  const fyStartMonth = company?.fiscalYearStartMonth || 4;
-  const fyEndMonth = fyStartMonth === 1 ? 12 : fyStartMonth - 1;
-  const fyEndYear = fyStartMonth === 1 ? parseInt(fiscalYear) : parseInt(fiscalYear) + 1;
-  const fyEndDate = `${fyEndYear}-${String(fyEndMonth).padStart(2, "0")}-${fyEndMonth === 2 ? "28" : ["04", "06", "09", "11"].includes(String(fyEndMonth).padStart(2, "0")) ? "30" : "31"}`;
+  const fyEndMonth2 = company?.fiscalYearEndMonth || 3;
+  const fyStartMonth2 = (fyEndMonth2 % 12) + 1;
+  const fyEndYear = fyStartMonth2 === 1 ? parseInt(fiscalYear) : parseInt(fiscalYear) + 1;
+  const fyEndDate = `${fyEndYear}-${String(fyEndMonth2).padStart(2, "0")}-${fyEndMonth2 === 2 ? "28" : ["04", "06", "09", "11"].includes(String(fyEndMonth2).padStart(2, "0")) ? "30" : "31"}`;
 
   const allAssets = await db
     .select()
@@ -103,7 +104,7 @@ export async function POST(request: Request) {
         usefulLife: asset.usefulLife,
         depreciationMethod: asset.depreciationMethod as "straight_line" | "declining_balance" | "immediate" | "bulk_3year",
         acquisitionDate: asset.acquisitionDate,
-        fiscalYearStartMonth: fyStartMonth,
+        fiscalYearStartMonth: fyStartMonth2,
       },
       fiscalYear,
     );

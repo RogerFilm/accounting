@@ -24,10 +24,10 @@ async function main() {
   await db.insert(schema.companies)
     .values({
       id: companyId,
-      name: "サンプル株式会社",
-      address: "東京都千代田区丸の内1-1-1",
-      invoiceRegistrationNumber: "T1234567890123",
-      fiscalYearStartMonth: 4,
+      name: "RogerFilm合同会社",
+      address: "東京都調布市西つつじケ丘３丁目２６番７号アーバンフラッツＭＡ２０３",
+      invoiceRegistrationNumber: "T3012403005316",
+      fiscalYearEndMonth: 12,
       taxMethod: "standard",
       createdAt: now,
       updatedAt: now,
@@ -54,20 +54,34 @@ async function main() {
       email: "admin@example.com",
       hashedPassword: hashed,
       name: "管理者",
-      role: "owner",
+      role: "admin",
+      companyId,
+      createdAt: now,
+    });
+
+  // Create tax accountant user
+  const taxAccountantId = ulid();
+  const taxAccountantHashed = await hashPassword("tax123");
+  await db.insert(schema.users)
+    .values({
+      id: taxAccountantId,
+      email: "tax@example.com",
+      hashedPassword: taxAccountantHashed,
+      name: "税理士",
+      role: "tax_accountant",
       companyId,
       createdAt: now,
     });
 
   // Create accountant user
   const accountantId = ulid();
-  const accountantHashed = await hashPassword("tax123");
+  const accountantHashed = await hashPassword("keiri123");
   await db.insert(schema.users)
     .values({
       id: accountantId,
       email: "accountant@example.com",
       hashedPassword: accountantHashed,
-      name: "税理士",
+      name: "経理担当",
       role: "accountant",
       companyId,
       createdAt: now,
@@ -109,7 +123,8 @@ async function main() {
   console.log(`  Company: ${companyId}`);
   console.log(`  Fiscal Year: ${fyId}`);
   console.log(`  Admin User: admin@example.com / admin123`);
-  console.log(`  Accountant User: accountant@example.com / tax123`);
+  console.log(`  Tax Accountant User: tax@example.com / tax123`);
+  console.log(`  Accountant User: accountant@example.com / keiri123`);
   console.log(`  Accounts: ${seedAccounts.length} accounts created`);
   console.log(`  Tax Categories: ${seedTaxCategories.length} categories created`);
 }
