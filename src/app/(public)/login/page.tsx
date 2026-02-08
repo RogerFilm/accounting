@@ -7,20 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-function AppLogo({ className }: { className?: string }) {
+function AppLogo() {
   return (
-    <svg viewBox="0 0 28 28" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="rf-grad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#0b3a42" />
-          <stop offset="40%" stopColor="#0f4a53" />
-          <stop offset="60%" stopColor="#1a6e7a" />
-          <stop offset="100%" stopColor="#4eddd0" />
-        </linearGradient>
-      </defs>
-      <rect width="28" height="28" rx="6" fill="url(#rf-grad)" />
-      <text x="14" y="19" textAnchor="middle" fill="#eaf8f6" fontSize="13" fontWeight="bold" fontFamily="Arial, Helvetica, sans-serif">RF</text>
-    </svg>
+    <div
+      className="h-8 w-8 rounded-md flex items-center justify-center font-bold text-sm text-[#eaf8f6] shrink-0"
+      style={{ background: "linear-gradient(135deg, #0b3a42 0%, #0f4a53 40%, #1a6e7a 60%, #4eddd0 100%)" }}
+    >
+      RF
+    </div>
   );
 }
 
@@ -59,7 +53,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm shadow-md">
         <CardHeader className="text-center pb-4">
           <div className="mx-auto mb-3 flex items-center gap-2">
-            <AppLogo className="h-8 w-8" />
+            <AppLogo />
             <span className="text-xl font-bold text-foreground">RogerFilm</span>
           </div>
           <p className="text-sm text-muted-foreground">アカウントにログイン</p>
