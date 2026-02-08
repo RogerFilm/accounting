@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  /* freee-inspired color palette */
+  --color-background: #f5f6f8;
+  --color-foreground: #333333;
+  --color-card: #ffffff;
+  --color-card-foreground: #333333;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #333333;
+  --color-primary: #2864f0;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #ebf0ff;
+  --color-secondary-foreground: #2864f0;
+  --color-muted: #f5f6f8;
+  --color-muted-foreground: #8a8f9c;
+  --color-accent: #ebf0ff;
+  --color-accent-foreground: #2864f0;
+  --color-destructive: #e53935;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #eef0f4;
+  --color-input: #e0e3e9;
+  --color-ring: #2864f0;
+  --radius: 0.375rem;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+  --font-mono: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
+/* Toast animation */
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-slide-in 0.2s ease-out;
+}
+
+/* Print styles for reports */
+@media print {
+  aside {
+    display: none !important;
+  }
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  button, a[download] {
+    display: none !important;
+  }
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+  .print\:border-none {
+    border: none !important;
+  }
+}
