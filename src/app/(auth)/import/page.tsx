@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Upload, FileSpreadsheet, Camera } from "lucide-react";
+import { Upload, FileSpreadsheet, Camera, RefreshCw } from "lucide-react";
 
 export default function ImportPage() {
   return (
@@ -43,6 +43,19 @@ export default function ImportPage() {
             <CardContent>
               <p className="text-sm text-muted-foreground">
                 freee の仕訳帳・取引CSVをインポート
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/import/bank-api">
+          <Card className="transition-colors hover:bg-muted/30 cursor-pointer h-full">
+            <CardHeader className="flex flex-row items-center gap-3 pb-2">
+              <RefreshCw className="h-5 w-5 text-muted-foreground" />
+              <CardTitle className="text-base">銀行API連携</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                GMOあおぞらネット銀行APIから取引明細を自動取得
               </p>
             </CardContent>
           </Card>
