@@ -41,7 +41,7 @@ function getNavSections(role?: string): NavSection[] {
   const settingsItems: NavItem[] = [
     { href: "/settings", label: "設定", icon: Settings },
   ];
-  if (role === "admin") {
+  if (role === "owner") {
     settingsItems.push({ href: "/users", label: "ユーザー管理", icon: Users });
   }
 

@@ -54,7 +54,7 @@ async function main() {
       email: "admin@example.com",
       hashedPassword: hashed,
       name: "管理者",
-      role: "admin",
+      role: "owner",
       companyId,
       createdAt: now,
     });
@@ -68,7 +68,7 @@ async function main() {
       email: "tax@example.com",
       hashedPassword: taxAccountantHashed,
       name: "税理士",
-      role: "tax_accountant",
+      role: "accountant",
       companyId,
       createdAt: now,
     });

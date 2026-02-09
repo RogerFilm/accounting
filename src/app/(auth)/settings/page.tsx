@@ -67,11 +67,9 @@ export default async function SettingsPage() {
             <div>
               <dt className="font-medium text-muted-foreground">権限</dt>
               <dd>
-                {user.role === "admin"
+                {user.role === "owner"
                   ? "管理者"
-                  : user.role === "tax_accountant"
-                    ? "税理士"
-                    : "経理"}
+                  : "経理"}
               </dd>
             </div>
           </dl>
