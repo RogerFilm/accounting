@@ -53,6 +53,10 @@ export interface InvoicePDFData {
     subtotal: number;
     taxAmount: number;
   }[];
+
+  // Virtual Account (optional)
+  vaNumber?: string;
+  vaAccountName?: string;
 }
 
 export const DOCUMENT_TYPE_LABELS = {

@@ -18,7 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { formatYen } from "@/lib/utils/currency";
 import { computeTaxBreakdown, type InvoicePDFData } from "@/lib/pdf/invoice-template";
-import { FileDown, Send, Copy } from "lucide-react";
+import { FileDown, Send, Copy, Landmark } from "lucide-react";
 
 // Dynamic import for PDF (client-side only)
 const PDFSection = dynamic(
@@ -51,6 +51,7 @@ interface InvoiceDetail {
   total: number;
   journalEntryId: string | null;
   sourceDocumentId: string | null;
+  virtualAccountId: string | null;
   lines: InvoiceLine[];
   client: {
     name: string;
@@ -60,6 +61,14 @@ interface InvoiceDetail {
     name: string;
     address: string | null;
     invoiceRegistrationNumber: string | null;
+  } | null;
+  virtualAccount: {
+    id: string;
+    vaNumber: string;
+    vaAccountName: string | null;
+    vaType: string;
+    status: string;
+    expiryDate: string | null;
   } | null;
 }
 
@@ -161,6 +170,8 @@ export default function InvoiceDetailPage() {
         description: l.description,
       })),
     ),
+    vaNumber: data.virtualAccount?.vaNumber,
+    vaAccountName: data.virtualAccount?.vaAccountName || undefined,
   };
 
   return (
@@ -333,6 +344,50 @@ export default function InvoiceDetailPage() {
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground mb-1">備考</div>
             <div className="text-sm whitespace-pre-wrap">{data.notes}</div>
+          </CardContent>
+        </Card>
+      )}
+
+      {data.virtualAccount && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground flex items-center gap-1.5">
+              <Landmark className="h-3.5 w-3.5" />
+              振込入金口座（VA）
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-muted-foreground">口座番号: </span>
+                <span className="font-mono font-medium">{data.virtualAccount.vaNumber}</span>
+              </div>
+              {data.virtualAccount.vaAccountName && (
+                <div>
+                  <span className="text-muted-foreground">口座名義: </span>
+                  {data.virtualAccount.vaAccountName}
+                </div>
+              )}
+              <div>
+                <span className="text-muted-foreground">種別: </span>
+                {data.virtualAccount.vaType === "term" ? "期限型" : "継続型"}
+              </div>
+              {data.virtualAccount.expiryDate && (
+                <div>
+                  <span className="text-muted-foreground">有効期限: </span>
+                  {data.virtualAccount.expiryDate}
+                </div>
+              )}
+              <div>
+                <span className="text-muted-foreground">状態: </span>
+                <Badge
+                  variant={data.virtualAccount.status === "active" ? "default" : "secondary"}
+                  className="text-[10px]"
+                >
+                  {data.virtualAccount.status === "active" ? "有効" : data.virtualAccount.status === "stopped" ? "停止" : "削除済"}
+                </Badge>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}

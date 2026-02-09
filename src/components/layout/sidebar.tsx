@@ -21,6 +21,7 @@ import {
   X,
   ChevronRight,
   PenLine,
+  Landmark,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -58,6 +59,7 @@ function getNavSections(role?: string): NavSection[] {
       label: "経理",
       items: [
         { href: "/invoices", label: "請求書", icon: Receipt },
+        { href: "/va", label: "入金消し込み", icon: Landmark },
         { href: "/clients", label: "取引先", icon: UserPlus },
       ],
     },

@@ -25,6 +25,7 @@ export const invoices = pgTable("invoices", {
   total: integer("total").notNull().default(0), // 税込合計
   // Linked journal entry (auto-generated when issued)
   journalEntryId: text("journal_entry_id"),
+  virtualAccountId: text("virtual_account_id"), // 紐付くバーチャル口座
   // Source document (for estimate → invoice conversion)
   sourceDocumentId: text("source_document_id"),
   createdBy: text("created_by").notNull(),

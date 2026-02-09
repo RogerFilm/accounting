@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
-import { invoices, invoiceLines, clients, companies } from "@/db/schema";
+import { invoices, invoiceLines, clients, companies, virtualAccounts } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/session";
 
 /** GET /api/invoices/[id] — get invoice with lines and related data */
@@ -36,10 +36,21 @@ export async function GET(
     .from(companies)
     .where(eq(companies.id, user.companyId));
 
+  // Get linked virtual account if any
+  let virtualAccount = null;
+  if (invoice.virtualAccountId) {
+    const [va] = await db
+      .select()
+      .from(virtualAccounts)
+      .where(eq(virtualAccounts.id, invoice.virtualAccountId));
+    virtualAccount = va || null;
+  }
+
   return NextResponse.json({
     ...invoice,
     lines,
     client,
     company,
+    virtualAccount,
   });
 }

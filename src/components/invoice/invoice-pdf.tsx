@@ -255,6 +255,26 @@ export function InvoicePDF({ data }: { data: InvoicePDFData }) {
           </Text>
         )}
 
+        {/* VA payment info */}
+        {data.vaNumber && (
+          <View style={{ marginTop: 15, padding: 10, backgroundColor: "#e8f4f8", borderLeft: "3 solid #0b3a42" }}>
+            <Text style={{ fontSize: 9, fontWeight: "bold", marginBottom: 4 }}>
+              お振込先（専用口座）
+            </Text>
+            <Text style={{ fontSize: 9 }}>
+              GMOあおぞらネット銀行
+            </Text>
+            <Text style={{ fontSize: 10, fontWeight: "bold", marginTop: 2 }}>
+              口座番号: {data.vaNumber}
+            </Text>
+            {data.vaAccountName && (
+              <Text style={{ fontSize: 9, marginTop: 2 }}>
+                口座名義: {data.vaAccountName}
+              </Text>
+            )}
+          </View>
+        )}
+
         {/* Notes */}
         {data.notes && (
           <View style={styles.notes}>

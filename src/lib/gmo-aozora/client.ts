@@ -17,19 +17,34 @@ export class GmoApiError extends Error {
   }
 }
 
-async function gmoFetch(path: string, params?: Record<string, string>) {
+interface GmoFetchOptions {
+  method?: "GET" | "POST";
+  body?: unknown;
+}
+
+async function gmoFetch(path: string, params?: Record<string, string>, options?: GmoFetchOptions) {
+  const method = options?.method ?? "GET";
   const url = new URL(`${BASE_URL}${path}`);
-  if (params) {
+  if (method === "GET" && params) {
     for (const [k, v] of Object.entries(params)) {
       if (v) url.searchParams.set(k, v);
     }
   }
 
+  const headers: Record<string, string> = {
+    "x-access-token": ACCESS_TOKEN,
+    Accept: "application/json;charset=UTF-8",
+  };
+  if (method === "POST") {
+    headers["Content-Type"] = "application/json;charset=UTF-8";
+  }
+
   const res = await fetch(url.toString(), {
-    headers: {
-      "x-access-token": ACCESS_TOKEN,
-      Accept: "application/json;charset=UTF-8",
-    },
+    method,
+    headers,
+    ...(method === "POST" && options?.body != null
+      ? { body: JSON.stringify(options.body) }
+      : {}),
   });
 
   if (!res.ok) {
@@ -122,4 +137,111 @@ export async function fetchTransactions(
   } while (nextItemKey);
 
   return all;
+}
+
+// --- Virtual Account (VA) ---
+
+export interface VaIssueRequest {
+  vaContractAuthKey: string;
+  vaTypeCode: string; // "1" = 期限型, "2" = 継続型
+  depositAmountExistCode: string; // "1" = 振込金額の指定あり, "2" = なし
+  depositAmount?: string;
+  vaTradeInformation?: string; // 取引情報 (自由入力)
+  expiredDate?: string; // 期限型の場合 (YYYYMMDD)
+}
+
+export interface VirtualAccount {
+  vaId: string;
+  vaContractAuthKey: string;
+  vaTypeCode: string;
+  vaTypeName: string;
+  vaAccountName: string;
+  vaAccountNameKana: string;
+  vaNumber: string; // バーチャル口座番号
+  depositAmount: string;
+  vaStatus: string; // "01" = 有効, "02" = 停止, "03" = 削除
+  vaStatusName: string;
+  expiredDate: string;
+  latestDepositDate: string;
+  latestDepositAmount: string;
+  vaTradeInformation: string;
+}
+
+export interface VaIssueResponse {
+  vaContractAuthKey: string;
+  vaTypeCode: string;
+  vaList: VirtualAccount[];
+}
+
+export interface VaListResponse {
+  vaList: VirtualAccount[];
+  baseDate: string;
+  baseTime: string;
+  count: string;
+}
+
+export interface VaDepositTransaction {
+  vaNumber: string;
+  depositDate: string;
+  depositAmount: string;
+  depositTime: string;
+  remitterName: string;
+  vaTradeInformation: string;
+}
+
+export interface VaDepositTransactionsResponse {
+  vaDepositTransactionList: VaDepositTransaction[];
+  count: string;
+}
+
+export interface VaStatusChangeRequest {
+  vaId: string;
+  vaContractAuthKey: string;
+  vaStatusChangeCode: string; // "02" = 停止, "03" = 削除, "01" = 有効
+}
+
+export async function issueVirtualAccounts(
+  accounts: VaIssueRequest[],
+): Promise<VaIssueResponse> {
+  return gmoFetch("/va/issue", undefined, {
+    method: "POST",
+    body: { vaList: accounts },
+  });
+}
+
+export async function listVirtualAccounts(filters?: {
+  vaContractAuthKey?: string;
+  vaTypeCode?: string;
+  vaStatus?: string;
+  vaNumber?: string;
+}): Promise<VaListResponse> {
+  return gmoFetch("/va/list", undefined, {
+    method: "POST",
+    body: filters || {},
+  });
+}
+
+export async function fetchVaDepositTransactions(params: {
+  vaNumber?: string;
+  dateFrom: string;
+  dateTo: string;
+}): Promise<VaDepositTransaction[]> {
+  const data: VaDepositTransactionsResponse = await gmoFetch(
+    "/va/deposit-transactions",
+    {
+      dateFrom: params.dateFrom,
+      dateTo: params.dateTo,
+      ...(params.vaNumber ? { vaNumber: params.vaNumber } : {}),
+    },
+  );
+  return data.vaDepositTransactionList || [];
+}
+
+export async function changeVaStatus(
+  accounts: VaStatusChangeRequest[],
+): Promise<{ vaList: VirtualAccount[] }> {
+  return gmoFetch("/va/status-change", undefined, {
+    method: "POST",
+    body: { vaList: accounts },
+  });
 }

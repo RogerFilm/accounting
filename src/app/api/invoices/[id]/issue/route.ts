@@ -7,12 +7,14 @@ import {
   accounts,
   journalEntries,
   journalLines,
+  virtualAccounts,
 } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/session";
+import { issueVirtualAccounts, GmoApiError } from "@/lib/gmo-aozora/client";
 
 /** POST /api/invoices/[id]/issue — issue invoice and create journal entry */
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { user } = await requireAuth();
@@ -118,5 +120,64 @@ export async function POST(
     })
     .where(eq(invoices.id, id));
 
-  return NextResponse.json({ success: true, journalEntryId });
+  // Optionally issue VA for automatic payment reconciliation
+  let virtualAccountId: string | null = null;
+  const body = await request.json().catch(() => ({}));
+
+  if (body.issueVa) {
+    try {
+      const vaContractAuthKey = process.env.GMO_VA_CONTRACT_AUTH_KEY;
+      if (vaContractAuthKey) {
+        const vaType = body.vaType === "continuous" ? "2" : "1";
+        const result = await issueVirtualAccounts([
+          {
+            vaContractAuthKey,
+            vaTypeCode: vaType,
+            depositAmountExistCode: "1",
+            depositAmount: String(invoice.total),
+            vaTradeInformation: invoice.documentNumber,
+            expiredDate: invoice.dueDate
+              ? invoice.dueDate.replace(/-/g, "")
+              : undefined,
+          },
+        ]);
+
+        const issuedVa = result.vaList[0];
+        if (issuedVa) {
+          const vaRecordId = ulid();
+          virtualAccountId = vaRecordId;
+
+          await db.insert(virtualAccounts).values({
+            id: vaRecordId,
+            companyId: user.companyId,
+            vaNumber: issuedVa.vaNumber,
+            vaAccountName: issuedVa.vaAccountName,
+            vaType: body.vaType === "continuous" ? "continuous" : "term",
+            invoiceId: id,
+            clientId: invoice.clientId,
+            status: "active",
+            expiryDate: issuedVa.expiredDate
+              ? `${issuedVa.expiredDate.slice(0, 4)}-${issuedVa.expiredDate.slice(4, 6)}-${issuedVa.expiredDate.slice(6, 8)}`
+              : null,
+            vaId: issuedVa.vaId,
+            vaContractAuthKey,
+            gmoRawResponse: JSON.stringify(issuedVa),
+            createdAt: now,
+            updatedAt: now,
+          });
+
+          // Link VA to invoice
+          await db
+            .update(invoices)
+            .set({ virtualAccountId: vaRecordId, updatedAt: now })
+            .where(eq(invoices.id, id));
+        }
+      }
+    } catch (e) {
+      // VA issuance failure should not block invoice issuance
+      console.error("VA issuance failed:", e instanceof GmoApiError ? e.message : e);
+    }
+  }
+
+  return NextResponse.json({ success: true, journalEntryId, virtualAccountId });
 }

@@ -9,3 +9,4 @@ export * from "./invoices";
 export * from "./bank-import-rules";
 export * from "./receipts";
 export * from "./fixed-assets";
+export * from "./virtual-accounts";
